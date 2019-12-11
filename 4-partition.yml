@@ -1,4 +1,5 @@
-# Create an LVM logical volume named myvol on the volume group called external-disk with 1GB in size with an XFS filesystem and mounted persistently at /myvol directory.
+# Create an LVM logical volume named myvol on the volume group called external-disk with 
+# 1GB in size with an XFS filesystem and mounted persistently at /myvol directory.
 ---
 - name: Partion Management
   hosts: all
