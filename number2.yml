@@ -4,6 +4,8 @@
 ---
 - name: Deploy Message of the Day
   hosts: ansible-target.usersys.redhat.com
+  become: true
+  remote_user: root
   tasks:
     - name: Write message to file
       lineinfile:
