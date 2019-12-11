@@ -1,0 +1,16 @@
+#Make sure the /etc/motd has the following content
+#
+#	### WELCOME TO ANSIBLE ####
+---
+- name: Deploy Message of the Day
+  hosts: ansible-target.usersys.redhat.com
+  tasks:
+    - name: Write message to file
+      lineinfile:
+        state: present
+        create: yes
+        path: /etc/motd
+        owner: root
+        group: root
+        mode: 0644
+        line: '### WELCOME TO ANSIBLE ####'
