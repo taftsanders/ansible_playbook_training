@@ -1,0 +1,6 @@
+# Ensure that your system has the following firewall rules
+# Allow ssh connections
+# Allow apache connections (http, https)
+# Log and reject any inbound connections (allow the system to create out bonding connections)
+---
+- name: Setup Firewalld
