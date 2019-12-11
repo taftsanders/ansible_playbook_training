@@ -1,0 +1,34 @@
+# Make sure the system has the following packages installed: 
+#  httpd
+#  mod-ssl
+#  nfs-utils
+#  autofs
+#  postfix
+#  postgresql-server
+---
+- name: Install packages on the system
+  hosts: all
+
+  vars:
+    packages: ''
+    #packages: 
+    #  - httpd
+    #  - mod_ssl
+    #  - nfs-utils
+    #  - autofs
+    #  - postfix
+    #  - postgresql-server
+
+  tasks:
+    - name: "[ CHECK ] - Verify if packages variable is set"
+      fail: 
+        msg: "You must set the variable packages"
+      when: packages == ''
+
+    - name: "[ INSTALL ] - Performing installation"
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - "{{ packages }}"
+      when: packages
