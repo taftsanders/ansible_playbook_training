@@ -1,0 +1,38 @@
+# Create an LVM logical volume named myvol on the volume group called external-disk with 1GB in size with an XFS filesystem and mounted persistently at /myvol directory.
+---
+- name: Partion Management
+  hosts: all
+
+  vars:
+    lv_size: 1g
+    vg_name: external-disk
+    lv_name: myvol
+    mountpoint: /myvol
+
+  tasks:
+
+    - name: "[ LVM ] - Create the logical volume myvol"
+      lvol:
+        vg: "{{ vg_name }}"
+        lv: "{{ lv_name }}"
+        size: "{{ lv_size }}"
+
+
+    - name: "[ FILESYSTEM ] - Format logical volume with XFS format"
+      filesystem:
+        fstype: xfs
+        dev: /dev/{{ vg_name }}/{{ lv_name }}
+
+    - name: "[ DIRECTORY ] - Creates directory {{ mountpoint }}"
+      file:
+        path: "{{ mountpoint }}"
+        state: directory
+        mode: '0775'
+
+
+    - name: "[ MOUNT ] - Mount the logical volume {{ lv_name }} at {{ mountpoint }}"
+      mount:
+        path: "{{ mountpoint }}"
+        fstype: xfs
+        src: /dev/{{ vg_name }}/{{ lv_name }}
+        state: mounted
