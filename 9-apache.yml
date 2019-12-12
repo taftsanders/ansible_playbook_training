@@ -2,8 +2,57 @@
 # Copy the postgres dump from https://batman.usersys.redhat.com/pub/postgres.dump to the local system 
 # and restore this file into the database.
 ---
-- name: Restore Postgres
+- name: Deploy Apache Webserver
   host: all
+  vars:
+    server_name: ''
+    document_root: ''
+    server_admin: ''
+    apache_vhosts:
+      - {servername: "{{ server_name }}", documentroot: "{{ document_root }}", serveradmin: "{{ server_admin }}"}
   tasks:
     
-    - name: Download the postgres dump
+    - name: Check if server_name is set
+      fail: 
+        msg: "You must set the variable server_name"
+      when: server_name == ''
+
+    - name: Check if document_root is set
+      fail:
+        msg: "You must set the variable document_root"
+      when: document_root == ''
+
+    - name: Ensure Apache is installed
+      package:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Start/Enable Apache Service
+      systemd:
+        state: started
+        name: httpd
+        enabled: yes
+
+    - name: Create Virtual Host Document Root
+      file:
+        path: /srv/www.ansible-target.usersys.redhat.com/www
+        group: root
+        mode: '0644'
+        owner: root
+        state: directory
+
+    - name: Copy Webpage to server
+
+    - name: Downloading Virtual Host Jinja2 Template
+      get_url:
+        url: http://batman.usersys.redhat.com/pub/vhost1.conf.j2
+        dest: /tmp/
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Create Virtual Host Configuration
+      template:
+        src: /tmp/vhost1.conf.j2
+        dest: /etc/httpd/conf.d/
