@@ -31,4 +31,6 @@
         state: latest
       with_items:
         - "{{ packages }}"
-      when: packages
+      when:
+        - packages
+        - ansible_os_family == "RedHat"

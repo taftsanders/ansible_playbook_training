@@ -1,0 +1,30 @@
+# Create the /storage directory and connect the NFS share provided
+# by rhui3nfs.usersys.redhat.com to this directory. 
+# Ensure this NFS share is mounted upon reboot.
+---
+- name: Mounting NFS share
+  hosts: all
+  become: true
+
+  vars:
+    server: rhui3nfs.usersys.redhat.com
+    mountpoint: /storage
+    nfs_version: 3
+    nfs_share: /nfsshare
+    nfs_mount_opts: rsize=8192,wsize=8192,timeo=14,intr
+
+  tasks:
+
+    - name: "[INSTALL ] - Install NFS mount utility"
+      package:
+        name: nfs-utils
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: "[ NFS ] - Mounting NFS share" 
+      mount:
+        fstype: nfs
+        path: "{{ mountpoint }}"
+        opts: "vers={{ nfs_version }},{{ nfs_mount_opts }}"
+        src: "{{ server }}:{{ nfs_share }}"
+        state: mounted
