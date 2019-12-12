@@ -1,9 +1,0 @@
-# Start the postgres service and ensure it starts on boot.
-# Copy the postgres dump from https://batman.usersys.redhat.com/pub/postgres.dump to the local system 
-# and restore this file into the database.
----
-- name: Restore Postgres
-  host: all
-  tasks:
-    
-    - name: Download the postgres dump
