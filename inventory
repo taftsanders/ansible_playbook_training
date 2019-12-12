@@ -1,1 +1,1 @@
-ansible-target.usersys.redhat.com
+ansible-target.usersys.redhat.com ansible_host=10.12.214.245
