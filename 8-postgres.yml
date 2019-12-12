@@ -1,0 +1,76 @@
+# Start the postgres service and ensure it starts on boot.
+# Copy the postgres dump from https://batman.usersys.redhat.com/pub/postgres.dump to the local system
+# and restore this file into the database ansible_demo.
+# If the database already exists, the playbook should 
+# just display a message and abort restoring the db. 
+
+---
+- name: Restoring PostgreSQL database
+  hosts: all
+  become: true
+
+  vars:
+    dbname: ansible_demo
+    pg_data_dir: /var/lib/pgsql
+    pg_dump_src: https://batman.usersys.redhat.com/pub/postgres.dump
+    pg_backup_dir: "{{ pg_data_dir }}/backups"
+    pg_dump_dest: "{{ pg_backup_dir }}/pgdump.db"
+    packages:
+      - postgresql-server
+      - python-psycopg2
+    pg_user: postgres
+
+  tasks:
+    - name: "[ PACKAGE ] - Ensure PostgreSQL is installed"
+      package:
+        name: "{{ item }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+      with_items:
+        - "{{ packages }}"
+
+    - name: "[ POSTGRES ] - Check if PostgreSQL has been initiated"
+      stat:
+        path: "{{ pg_data_dir }}/data/PG_VERSION"
+      register: stat_pgdir
+
+    - name: "[ POSTGRES ] - Initiate PostgreSQL database"
+      command: /usr/bin/postgresql-setup initdb
+      when: stat_pgdir.stat.exists == False
+        
+    - name: "[ SYSTEMD ] - Start PostgreSQL service"
+      systemd:
+        state: started
+        name: postgresql
+        enabled: yes
+
+    - name: "[ POSTGRES ] - Create database {{ dbname }}"
+      become_user: "{{ pg_user }}"
+      become: true
+      postgresql_db:
+        name: "{{ dbname }}"
+        state: present
+      register: db_status
+
+    - name: "[ GET_URL ] - Downloading the postgres dump"
+      get_url:
+        url: "{{ pg_dump_src }}"
+        dest: "{{ pg_dump_dest }}"
+        mode: '0700'
+        owner: postgres
+        group: postgres
+      register: download_status
+      when: db_status.changed
+
+    - name: "[ POSTGRES ] - Restore database"
+      become_user: "{{ pg_user }}"
+      become: true
+      postgresql_db:
+        name: "{{ dbname }}"
+        encoding: UTF-8
+        state: restore
+        target: "{{ pg_dump_dest }}"
+      when: 
+        - download_status is defined
+        - db_status.changed
+
