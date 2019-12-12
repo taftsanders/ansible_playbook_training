@@ -1,6 +1,47 @@
 # Ensure that your system has the following firewall rules
-# Allow ssh connections
-# Allow apache connections (http, https)
+# Allow ssh connections (port 22)
+# Allow apache connections (http port 80, https port 443)
+# Allow NFS (port 111)
+# Allow Postfix (port 25)
+# Allow Postgres (port 5432)
+# Ensure the firewall is on and enabled across reboots
 # Log and reject any inbound connections (allow the system to create out bonding connections)
 ---
 - name: Setup Firewalld
+  hosts: all
+  tasks:
+    - name: Enable SSH Port
+      firewalld:
+        service: ssh
+        state: enabled
+        permanent: yes
+
+    - name: Enable HTTP Port
+      firewalld:
+        service: http
+        state: enabled
+        permanent: yes
+
+    - name: Enable HTTPS Port
+      firewalld:
+        service: https
+        state: enabled
+        permanent: yes
+
+    - name: Enable NFS Port
+      firewalld:
+        port: 111/tcp
+        state: enabled
+        permanent: yes
+
+    - name: Enable Postfix Port
+      firewalld:
+        port: 25/tcp
+        state: enabled
+        permanent: yes
+
+    - name: Enable Postgres Port
+      firewalld:
+        port: 5432/tcp
+        state: enabled
+        permanent: yes
