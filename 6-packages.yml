@@ -24,6 +24,8 @@
       fail: 
         msg: "You must set the variable packages"
       when: packages == ''
+      tags:
+        - packages
 
     - name: "[ INSTALL ] - Performing installation"
       package:
@@ -34,3 +36,5 @@
       when:
         - packages
         - ansible_os_family == "RedHat"
+      tags:
+        - packages

@@ -14,12 +14,13 @@
     nfs_mount_opts: rsize=8192,wsize=8192,timeo=14,intr
 
   tasks:
-
     - name: "[INSTALL ] - Install NFS mount utility"
       package:
         name: nfs-utils
         state: present
       when: ansible_os_family == "RedHat"
+      tags:
+        - nfs
 
     - name: "[ NFS ] - Mounting NFS share" 
       mount:
@@ -28,3 +29,5 @@
         opts: "vers={{ nfs_version }},{{ nfs_mount_opts }}"
         src: "{{ server }}:{{ nfs_share }}"
         state: mounted
+      tags:
+        - nfs

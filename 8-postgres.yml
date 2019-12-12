@@ -28,21 +28,29 @@
       when: ansible_os_family == "RedHat"
       with_items:
         - "{{ packages }}"
+      tags:
+        - postgres
 
     - name: "[ POSTGRES ] - Check if PostgreSQL has been initiated"
       stat:
         path: "{{ pg_data_dir }}/data/PG_VERSION"
       register: stat_pgdir
+      tags:
+        - postgres
 
     - name: "[ POSTGRES ] - Initiate PostgreSQL database"
       command: /usr/bin/postgresql-setup initdb
       when: stat_pgdir.stat.exists == False
+      tags:
+        - postgres
         
     - name: "[ SYSTEMD ] - Start PostgreSQL service"
       systemd:
         state: started
         name: postgresql
         enabled: yes
+      tags:
+        - postgres
 
     - name: "[ POSTGRES ] - Create database {{ dbname }}"
       become_user: "{{ pg_user }}"
@@ -51,6 +59,8 @@
         name: "{{ dbname }}"
         state: present
       register: db_status
+      tags:
+        - postgres
 
     - name: "[ GET_URL ] - Downloading the postgres dump"
       get_url:
@@ -61,6 +71,8 @@
         group: postgres
       register: download_status
       when: db_status.changed
+      tags:
+        - postgres
 
     - name: "[ POSTGRES ] - Restore database"
       become_user: "{{ pg_user }}"
@@ -73,4 +85,6 @@
       when: 
         - download_status is defined
         - db_status.changed
+      tags:
+        - postgres
 

@@ -20,11 +20,13 @@
       file:
         path: "{{ item }}"
         state: directory
-
       with_items:
         - /home
         - /home/finance
         - /home/engineering
+      tags:
+        - users
+        - directories
 
     - name: "[ USERS ] - Create groups"
       group:
@@ -32,13 +34,16 @@
       with_items:
         - engineering
         - finance
+      tags:
+        - users
 
     - name: "[ USERS ] - Creates user Nancy"
       user:
         name: nancy
         state: present
         generate_ssh_key: yes
-
+      tags:
+        - users
 
     - name: "[ USERS ] - Creating users Alice, Bob, Clare"
       user:
@@ -53,13 +58,17 @@
         - {username: "alice", homedir: "/home/finance/alice",   groups: 'finance'}
         - {username: "bob",   homedir: "/home/engineering/bob", groups: 'engineering'}
         - {username: "clare", homedir: "/home/finance/clare",   groups: "engineering"}
-
+      tags:
+        - users
 
     - name: "[ DIRECTORY ] - Create /shared"
       file:
         path: /shared
         state: directory
         mode: '0775'
+      tags:
+        - users
+        - directories
 
     - name: "[ DIRECTORY ] - Create sub-directories"
       file:
@@ -68,10 +77,12 @@
         owner: "{{ item.owner }}"
         group: "{{ item.group }}"
         state: directory
-
       with_items:
         - { dir: '/shared/finance', mode: '2770', owner: 'root', group: 'finance'}
         - { dir: '/shared/engineering', mode: '2770', owner: 'root', group: 'engineering'}
+      tags:
+        - users
+        - directories
 
     - name: "[ USERS ] - Allow Nancy to read engineering files"
       acl:
@@ -81,3 +92,5 @@
         recursive: yes
         state: present
         permissions: rx
+      tags:
+        - users
