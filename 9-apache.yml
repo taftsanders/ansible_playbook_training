@@ -8,19 +8,24 @@
     server_name: ''
     document_root: ''
     server_admin: 'root@localhost'
+    webpage_download_url: "http://batman.usersys.redhat.com/pub/index.html"
+    vhost_template: "./vhost1.conf.j2"
+    vhost_conf: 'vhost1.conf'
     apache_vhosts:
-      - {servername: "{{ server_name }}", documentroot: "{{ document_root }}", serveradmin: "{{ server_admin }}"}
+      - {server_name: "{{ server_name }}", document_root: "{{ document_root }}", server_admin: "{{ server_admin }}"}
+    required_variables:
+      - document_root
+      - server_name
+      - webpage_download_url
+      - vhost_template
   tasks:
-    
-    - name: Check if server_name is set
-      fail: 
-        msg: "You must set the variable server_name"
-      when: server_name == ''
-
-    - name: Check if document_root is set
+        
+    - name: "Check if required_variables is set"
       fail:
-        msg: "You must set the variable document_root"
-      when: document_root == ''
+        msg: "You must set {{ item }}"
+      when: "{{ item }} is defined and {{ item }}|length == 0" 
+      with_items:
+        - "{{ required_variables }}"
 
     - name: Ensure Apache is installed
       package:
@@ -30,7 +35,7 @@
 
     - name: Create Virtual Host Document Root
       file:
-        path: /srv/site1/www
+        path: "{{ document_root }}"
         group: root
         mode: '0755'
         owner: root
@@ -38,25 +43,16 @@
 
     - name: Copy Webpage to server
       get_url:
-        url: http://batman.usersys.redhat.com/pub/index.html
-        #dest: /srv/site1/www/
+        url: "{{ webpage_download_url }}"
         dest: "{{ document_root }}"
         mode: '0755'
         owner: apache
         group: apache
 
-    - name: Downloading Virtual Host Jinja2 Template
-      get_url:
-        url: http://batman.usersys.redhat.com/pub/vhost1.conf.j2
-        dest: /tmp/vhost1.conf.j2
-        mode: '0777'
-        owner: root
-        group: root
-
     - name: Create Virtual Host Configuration
       template:
-        src: ./vhost1.conf.j2
-        dest: /etc/httpd/conf.d/
+        src: "{{ vhost_template }}"
+        dest: /etc/httpd/conf.d/{{ vhost_conf }}
 
     - name: Start/Enable Apache Service
       systemd:

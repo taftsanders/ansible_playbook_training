@@ -1,17 +1,13 @@
-NameVirtualHost *:80
-
 {% for vhost in apache_vhosts %}
 <VirtualHost *:80>
-  ServerName {{ vhost.servername }}
-  DocumentRoot {{ vhost.documentroot }}
-{% if vhost.serveradmin is defined %}
-  ServerAdmin {{ vhost.serveradmin }}
+  ServerName {{ vhost.server_name }}
+  DocumentRoot {{ vhost.document_root }}
+{% if vhost.server_admin is defined %}
+  ServerAdmin {{ vhost.server_admin }}
 {% endif %}
-  <Directory "{{ vhost.documentroot }}">
-    AllowOverride All
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
+  <Directory "{{ vhost.document_root }}">
+    AllowOverride None
+    Require all granted
   </Directory>
 </VirtualHost>
 
