@@ -3,11 +3,11 @@
 # and restore this file into the database.
 ---
 - name: Deploy Apache Webserver
-  host: all
+  hosts: all
   vars:
     server_name: ''
     document_root: ''
-    server_admin: ''
+    server_admin: 'root@localhost'
     apache_vhosts:
       - {servername: "{{ server_name }}", documentroot: "{{ document_root }}", serveradmin: "{{ server_admin }}"}
   tasks:
@@ -28,31 +28,38 @@
         state: present
       when: ansible_os_family == "RedHat"
 
-    - name: Start/Enable Apache Service
-      systemd:
-        state: started
-        name: httpd
-        enabled: yes
-
     - name: Create Virtual Host Document Root
       file:
-        path: /srv/www.ansible-target.usersys.redhat.com/www
+        path: /srv/site1/www
         group: root
-        mode: '0644'
+        mode: '0755'
         owner: root
         state: directory
 
     - name: Copy Webpage to server
+      get_url:
+        url: http://batman.usersys.redhat.com/pub/index.html
+        #dest: /srv/site1/www/
+        dest: "{{ document_root }}"
+        mode: '0755'
+        owner: apache
+        group: apache
 
     - name: Downloading Virtual Host Jinja2 Template
       get_url:
         url: http://batman.usersys.redhat.com/pub/vhost1.conf.j2
-        dest: /tmp/
-        mode: '0644'
+        dest: /tmp/vhost1.conf.j2
+        mode: '0777'
         owner: root
         group: root
 
     - name: Create Virtual Host Configuration
       template:
-        src: /tmp/vhost1.conf.j2
+        src: ./vhost1.conf.j2
         dest: /etc/httpd/conf.d/
+
+    - name: Start/Enable Apache Service
+      systemd:
+        state: restarted
+        name: httpd
+        enabled: yes
