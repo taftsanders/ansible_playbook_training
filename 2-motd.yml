@@ -1,9 +1,11 @@
 #Make sure the /etc/motd has the following content
 #
-#	### WELCOME TO ANSIBLE ####
+#	### WELCOME TO ANSIBLE ###
 ---
 - name: Deploy Message of the Day
   hosts: ansible-target.usersys.redhat.com
+  #  hosts: all 
+  #  hosts: group1
   become: true
   remote_user: root
   tasks:
