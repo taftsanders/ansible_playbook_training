@@ -85,7 +85,7 @@
         - directories
 
     - name: "[ USERS ] - Allow Nancy to read engineering files"
-      acl:
+      acl: 
         path: /shared/engineering
         entity: nancy
         etype: user

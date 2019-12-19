@@ -1,6 +1,10 @@
-# Start the postgres service and ensure it starts on boot.
-# Copy the postgres dump from https://batman.usersys.redhat.com/pub/postgres.dump to the local system 
-# and restore this file into the database.
+#Deploy Apache webserver and make sure it meets the following requirements:
+#Test if httpd is installed
+#Test if server_name variable is provided as an argument
+#Test if document_root variable is provided as an argument
+#Creates Document Root directory
+#Copies the webpage from http://people.redhat.com/tasander/index.html to the Document Root directory
+#Download the virtual host configuration from http://people.redhat.com/tasander/vhost1.conf.j2 and deploy this as your Virtual Host configuration, accepting server_name, document_root, and server_admin as variables.
 ---
 - name: Deploy Apache Webserver
   hosts: all
