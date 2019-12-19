@@ -18,3 +18,23 @@
         group: root
         mode: 0644
         line: '### WELCOME TO ANSIBLE ###'
+
+    - name: Write IP to file
+      lineinfile:
+        state: present
+        create: yes
+        path: /etc/motd
+        owner: root
+        group: root
+        mode: 0644
+        line: "\nIP:{{ ansible_default_ipv4.address }}"
+
+    - name: Write IP to file
+      lineinfile:
+        state: present
+        create: yes
+        path: /etc/issue.net
+        owner: root
+        group: root
+        mode: 0644
+        line: "IP:{{ ansible_default_ipv4.address }}"
